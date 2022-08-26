@@ -1,0 +1,88 @@
+[
+    {
+        "id": "product:1",
+        "title": "Pizza Margherita (Cheese)",
+        "price": 6.5,
+        "description": "The most classic Italian pizza: tomato sauce, mozzarella cheese, basil leaves, and some tomatoes",
+        "image": "https://webwesign.sirv.com/Images/whatstore/amirali-mirhashemian-zTxiTnTag78-unsplash.jpg",
+        "rating": {
+            "rate": 4.9,
+            "count": 121
+        }
+    },
+    {
+        "id": "product:2",
+        "title": "Pizza Salame (Pepperoni)",
+        "price": 7.5,
+        "description": "The most classic American pizza: tomato sauce, mozzarella cheese, pepperoni salami",
+        "image": "https://webwesign.sirv.com/Images/whatstore/alan-hardman-SU1LFoeEUkk-unsplash.jpg",
+        "rating": {
+            "rate": 4.2,
+            "count": 173
+        }
+    },
+    {
+        "id": "product:3",
+        "title": "Pizza ai funghi (Mushrooms)",
+        "price": 8.0,
+        "description": "Mushrooms pizza: tomato sauce, mozzarella cheese, mushrooms",
+        "image": "https://webwesign.sirv.com/Images/whatstore/razieh-bakhtom-QyyN-XKiGeM-unsplash.jpg",
+        "rating": {
+            "rate": 3.6,
+            "count": 98
+        }
+    },
+    {
+        "id": "product:4",
+        "title": "Rucola special (Arugula pepperoni)",
+        "price": 8.5,
+        "description": "Arugula pepperoni pizza: tomato sauce, mozzarella cheese, pepperoni, arugula, wine sauce",
+        "image": "https://webwesign.sirv.com/Images/whatstore/vita-marija-murenaite-eSeo6IzOV00-unsplash.jpg",
+        "rating": {
+            "rate": 4.7,
+            "count": 42
+        }
+    },
+    {
+        "id": "category:1",
+        "title": "Classic pizzas",
+        "description": "Old style and classic pizzas.",
+        "products": [1, 2]
+    },
+    {
+        "id": "category:2",
+        "title": "Special pizzas",
+        "description": "New and fancy pizzas.",
+        "products": [3, 4]
+    },
+    {
+        "id": "store:info",
+        "title": "TowerPizza",
+        "logo": "https://webwesign.sirv.com/Images/whatstore/logo1.png",
+        "logo-alt": "https://webwesign.sirv.com/Images/whatstore/logo2.png",
+        "logo-small": "https://webwesign.sirv.com/Images/whatstore/logo_size.jpg",
+        "location": {
+            "latitude": 42.585192665561394, 
+            "longitude": 14.089473641516543,
+            "address": "Torre Cerrano"
+        },
+        "contact_card": {
+            "addresses": [
+                {
+                    "city": "Pineto",
+                    "country": "Italy"
+                }
+            ],
+            "name": {
+                "first_name": "Guy",
+                "last_name": "Pizza"
+            },
+            "org": {
+                "company": "TowerPizza"
+            },
+            "phones": [
+                {"phone": "+1 813-843-9801"}
+            ]
+        }
+    }
+]
