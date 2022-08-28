@@ -1,3 +1,6 @@
+These pictures are found in the *sirv* image CDN, modified (size), and refenrenced to in the *store.json*.
+Here are the acknowledgments for their authors:
+
 amirali-mirhashemian-zTxiTnTag78-unsplash.jpg Photo by <a href="https://unsplash.com/@amir_v_ali?utm_source=unsplash&utm_medium=referral&utm_content=creditCopyText">amirali mirhashemian</a> on <a href="https://unsplash.com/images/food/pizza?utm_source=unsplash&utm_medium=referral&utm_content=creditCopyText">Unsplash</a>
 
 alan-hardman-SU1LFoeEUkk-unsplash.jpg Photo by <a href="https://unsplash.com/@alanaktion?utm_source=unsplash&utm_medium=referral&utm_content=creditCopyText">Alan Hardman</a> on <a href="https://unsplash.com/images/food/pizza?utm_source=unsplash&utm_medium=referral&utm_content=creditCopyText">Unsplash</a>

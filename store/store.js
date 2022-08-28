@@ -103,7 +103,7 @@ module.exports = class Store {
     async savePurchase({ final_bill, recipient_phone}){
         try {
             this._connect();
-            let { total, cart, len }  = final_bill;
+            let { total, cart }  = final_bill;
             const currentYear = new Date().getFullYear();
             await redis_cli.json.set('purchase:' + currentYear + ':' + uuid.v4(), '$', {
                 user: recipient_phone,

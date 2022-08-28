@@ -38,9 +38,7 @@ module.exports = class UserSession {
     }
 
     async emptyCart(phone) {
-        await redis_cli.json.set('user:' + phone, '$', {
-            cart: [],
-        });
+        await redis_cli.json.set('user:' + phone, '$.cart', []);
     }
 
     async getCart(phone) {
@@ -48,8 +46,7 @@ module.exports = class UserSession {
         let cart = stored.cart;
         let total = 0;
         total = cart.reduce((a, e) => a + e.price, total);
-        let len = cart.length;
-        return { total, cart, len};
+        return { total, cart};
     }
 
 }

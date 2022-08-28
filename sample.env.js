@@ -1,16 +1,7 @@
 const production = {
     ...process.env,
     NODE_ENV: process.env.NODE_ENV || 'production',
-    PORT: '',
-    WA_ACCESS_TOKEN:'',
-    WA_SENDER_PHONENUMBER_ID: '',
-    WA_BUSINESS_APP_ID: '',
-    WA_VERIFY_TOKEN: '',
-    REDIS_HOST: '', 
-    REDIS_PORT: '',
-    REDIS_USER: '',
-    REDIS_PASSWORD: '',
-    REDIS_SECRET: ''
+    // Once in production, just copy the production credentials here
 };
 
 const development = {

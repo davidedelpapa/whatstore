@@ -1,0 +1,23 @@
+{
+    "app_name": "whatstore",
+    "description": "Whatsapp Business app to implement a chat-based e-commerce store",
+    "hidden": "false",
+    "rank": "100",
+    "type": "Full App", 
+    "contributed_by": "Community", 
+    "repo_url": "https://github.com/davidedelpapa/whatstore", 
+    "download_url": "https://github.com/davidedelpapa/whatstore/archive/refs/heads/main.zip",
+    "hosted_url": "", 
+    "quick_deploy": "false", 
+    "deploy_buttons": [],
+    "language": ["JavaScript"], 
+    "redis_commands": ["JSON.SET", "JSON.GET", "KEYS"], 
+    "redis_features": [],
+    "redis_modules": ["RedisJSON"],
+    "app_image_urls": [
+    ], // Provide any image urls in an array.
+    "youtube_url": "", //Provide a Youtube link to your app's video
+    "special_tags": ["Hackathon"],
+    "verticals": ["Retail"], 
+    "markdown": "" // Link to the RAW Markdown.
+}

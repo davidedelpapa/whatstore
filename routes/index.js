@@ -31,6 +31,7 @@ router.get('/whatsapp/callbackurl', (req, res) => {
             mode === 'subscribe' &&
             process.env.WA_VERIFY_TOKEN === token
         ) {
+            console.log("Callback URL Verified");
             return res.status(200).send(challenge);
         } else {
             return res.sendStatus(403);
@@ -139,11 +140,9 @@ router.post('/whatsapp/callbackurl', async (req, res) => {
                 if (button_id.startsWith('add_to_cart_')) {
                     let product_id = button_id.split('add_to_cart_')[1];
                     await addtoCart({ recipient_phone, product_id });
-                    let list_items = await Session.getCart(recipient_phone);
-                    let numberOfItemsInCart = list_items.len;
                     
                     await Whatsapp.sendSimpleButtons({
-                        message: `Your cart has been updated.\nNumber of items in cart: ${numberOfItemsInCart}.\n\nWhat do you want to do next?`,
+                        message: `Your cart has been updated.\nWhat do you want to do next?`,
                         recipientPhone: recipient_phone, 
                         listOfButtons: [
                             review_cart,
@@ -220,7 +219,7 @@ router.post('/whatsapp/callbackurl', async (req, res) => {
 
                     await Session.deleteFromCart(recipient_phone, product_id);
                     let list_items = await Session.getCart(recipient_phone);
-                    let numberOfItemsInCart = list_items.len;
+                    let numberOfItemsInCart = list_items.cart.length;
 
                     if (list_items.cart.length === 0){
                         await Whatsapp.sendSimpleButtons({

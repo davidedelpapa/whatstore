@@ -133,9 +133,6 @@ dist
 pwds
 env.js
 *.pdf
-*.jpg
-*.jpeg
-*.png
 *.zip
 services/
 todo.txt
