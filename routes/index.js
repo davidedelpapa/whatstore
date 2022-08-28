@@ -63,6 +63,36 @@ router.post('/whatsapp/callbackurl', async (req, res) => {
                 Session.addToCart(recipient_phone, product);
             };
 
+            //COMMON FUNCTIONS
+            let reviewPendingOrders = async (recipient_phone) => {
+                let pending_orders = await Store.getPendingOrders();
+                if (pending_orders.length === 0){
+                    await Whatsapp.sendText({
+                        message: 'There are no pending orders.',
+                        recipientPhone: recipient_phone,
+                    });
+                }
+                else {
+                    let pendingOrders = [
+                        {
+                            title: "Pending Orders",
+                            rows: pending_orders.slice(0, 10).map((order, index) => ({
+                                title: `${order.user.slice(0, 20)}`,
+                                id: `pending_order_${index}`,
+                                description: `Time: ${order.time}, total: ${order.total}`
+                            }))
+                        }
+                    ];
+                    await Whatsapp.sendRadioButtons({
+                        headerText: 'Pending Orders',
+                        bodyText: `Hi! There are ${pending_orders,this.length} order(s) waiting.`,
+                        footerText: 'Review them here',
+                        recipientPhone: recipient_phone, 
+                        listOfSections: pendingOrders,
+                    });
+                }
+            };
+
             // LIST OF ACTIONS
             let speak_to_human = {
                 title: '💬 Speak to a human',
@@ -80,21 +110,32 @@ router.post('/whatsapp/callbackurl', async (req, res) => {
                 title: '🔄 Review cart',
                 id: 'review_cart',
             };
-            let modify_cart ={
+            let modify_cart = {
                 title: '🔄 Modify cart',
                 id: 'modify_cart',
+            };
+            let review_pending = {
+                title: 'See pending orders',
+                id: 'review_pending',
             };
 
             // INIT Message
             if (msg_type === 'text_message') {
-                await Whatsapp.sendSimpleButtons({
-                    message: `Hi ${recipient_name}, \nYou are speaking with a chatbot.\nWhat do you want to do next?`,
-                    recipientPhone: recipient_phone, 
-                    listOfButtons: [
-                        view_products,
-                        speak_to_human,
-                    ],
-                });
+                // SELLER Phone
+                if ( recipient_phone == process.env.SELLER_PHONE && process.env.ONE_PHONE != 'ON'){
+                    await reviewPendingOrders(recipient_phone);
+                }
+                // BUYER Phone
+                else {
+                    await Whatsapp.sendSimpleButtons({
+                        message: `Hi ${recipient_name}, \nYou are speaking with a chatbot.\nWhat do you want to do next?`,
+                        recipientPhone: recipient_phone, 
+                        listOfButtons: [
+                            view_products,
+                            speak_to_human,
+                        ],
+                    });
+                }
             }
 
             if (msg_type === 'simple_button_message') {
@@ -286,21 +327,105 @@ router.post('/whatsapp/callbackurl', async (req, res) => {
                         file_path: invoicePath,
                     });
 
-                    await Store.savePurchase({
+                    let stashed = await Store.stashPurchase({
                         final_bill: finalBill,
-                        recipientPhone: recipient_phone,
+                        recipient_phone: recipient_phone,
                     });
                     Session.emptyCart(recipient_phone);
                   
                     await Whatsapp.sendSimpleButtons({
                         recipientPhone: recipient_phone,
-                        message: `Thank you for shopping with us, ${recipient_name}.\n\nYour order has been received & will be processed shortly.\n\nYou can now close this chat and come to pick the order up, or continue:`,
+                        message: `Thank you for shopping with us, ${recipient_name}.\n\nYour order has been received & will be processed shortly.\n\nYou can now close this chat or continue shopping.`,
                         msg_id,
                         listOfButtons: [
                             view_products,
                             speak_to_human,
                         ],
                     });
+
+                    await Whatsapp.sendSimpleButtons({
+                        recipientPhone: process.env.SELLER_PHONE,
+                        message: `New pending order\n${invoiceText}`,
+                        msg_id,
+                        listOfButtons: [
+                            {
+                                title: 'Order ready in...',
+                                id: `delay_order_${stashed}`,
+                            },
+                            {
+                                title: 'Fulfill order',
+                                id: `fulfill_${stashed}`,
+                            },
+                            review_pending,
+                        ],
+                    });
+
+                }
+
+                // FULFILL ORDER Functions
+                if (button_id.startsWith('fulfill_')) {
+                    let order_id = button_id.split('fulfill_')[1];
+                    let orders = await Store.getPendingOrders();
+                    let current_order = orders[parseInt(order_id)];
+                    await Store.savePurchase(current_order, order_id);
+                    
+                    await Whatsapp.sendSimpleButtons({
+                        message: `Order fulfilled.\nWhat do you want to do next?`,
+                        recipientPhone: recipient_phone, 
+                        listOfButtons: [
+                            review_pending,
+                        ],
+                    });
+                }
+
+                // READY IN.. Functions
+                if (button_id.startsWith('delay_order_')) {
+                    let order_to_delay= button_id.split('delay_order_')[1];
+                    let pending_orders = await Store.getPendingOrders();
+
+                    let user_to_contact = pending_orders[parseInt(order_to_delay)].user;
+
+                    await Whatsapp.sendSimpleButtons({
+                        message: `Order will be ready in..`,
+                        recipientPhone: recipient_phone, 
+                        listOfButtons: [
+                            {
+                                title: '10 minutes',
+                                id: `alertuser_${user_to_contact}_10`,
+                            },
+                            {
+                                title: '30 minutes',
+                                id: `alertuser_${user_to_contact}_30`,
+                            },
+                            {
+                                title: '1 hour',
+                                id: `alertuser_${user_to_contact}_60`,
+                            },
+                        ],
+                    });
+                }
+
+                // ALERT USER function
+                if (button_id.startsWith('alertuser_')) {
+                    let user = button_id.split('_')[1];
+                    let time = button_id.split('_')[2];
+
+                    await Whatsapp.sendText({
+                        message: `Your order will be ready in ${time} minutes`,
+                        recipientPhone: user,
+                    });
+
+                    await Whatsapp.sendText({
+                        message: `Client notified!`,
+                        recipientPhone: recipient_phone,
+                    });
+
+                    await reviewPendingOrders(recipient_phone);
+                }
+
+                // REVIEW PENDING ORDERS function
+                if (button_id.startsWith('review_pending')) {
+                    await reviewPendingOrders(recipient_phone);
                 }
 
             };
@@ -353,16 +478,16 @@ router.post('/whatsapp/callbackurl', async (req, res) => {
                         return output.length ? output.join('') : 'N/A';
                     };
                 
-                    let text = `_Title_: *${title.trim()}*\n\n\n`;
-                    text += `_Description_: ${description.trim()}\n\n\n`;
-                    text += `_Price_: $${price}\n`;
-                    text += `${rating?.count || 0} shoppers rated this product so far.\n`;
-                    text += `_Rated_: ${emoji_rating(rating?.rate)}\n`;
+                    let msg = `_Title_: *${title.trim()}*\n\n\n`;
+                    msg += `_Description_: ${description.trim()}\n\n\n`;
+                    msg += `_Price_: $${price}\n`;
+                    msg += `${rating?.count || 0} shoppers rated this product so far.\n`;
+                    msg += `_Rated_: ${emoji_rating(rating?.rate)}\n`;
                 
                     await Whatsapp.sendImage({
                         recipientPhone: recipient_phone,
                         url: imageUrl,
-                        caption: text,
+                        caption: msg,
                     });
 
                     let listOfButtons = [
@@ -403,6 +528,39 @@ router.post('/whatsapp/callbackurl', async (req, res) => {
                         ],
                     });
                 }
+
+                // SELECTED PENDING ORDER Functions
+                if (selectionId.startsWith('pending_order_')) {
+                    let selectedOrder = selectionId.split('pending_order_')[1];
+                    let pending_orders = await Store.getPendingOrders();
+
+                    let pending_order = pending_orders[parseInt(selectedOrder)];
+                    let order = `List of items in order:\n`;
+
+                    pending_order.purchased.forEach((item, index) => {
+                        let serial = index + 1;
+                        order += `\n#${serial}: ${item.title} @ $${item.price}`;
+                    });
+                  
+                    order += `\n\nTotal: $${pending_order.total}`;
+
+                    await Whatsapp.sendSimpleButtons({
+                        message: `Pending order for ${pending_order.user}\n ${order}\nWhat do you want to do next?`,
+                        recipientPhone: recipient_phone, 
+                        listOfButtons: [
+                            {
+                                title: '🗙 Fulfill Order',
+                                id: `fulfill_${selectedOrder}`,
+                            },
+                            {
+                                title: '🕓 Order ready in..',
+                                id: `delay_order_${selectedOrder}`,
+                            },
+                            review_pending,
+                        ],
+                    });
+                }
+
 
             }
         // Mark message as read

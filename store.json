@@ -56,6 +56,10 @@
         "products": [3, 4]
     },
     {
+        "id": "pending_orders",
+        "orders": []
+    },
+    {
         "id": "store:info",
         "title": "TowerPizza",
         "logo": "https://webwesign.sirv.com/Images/whatstore/logo1.png",

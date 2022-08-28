@@ -100,17 +100,46 @@ module.exports = class Store {
         }
     }
 
-    async savePurchase({ final_bill, recipient_phone}){
+    async stashPurchase({ final_bill, recipient_phone}){
         try {
             this._connect();
             let { total, cart }  = final_bill;
-            const currentYear = new Date().getFullYear();
-            await redis_cli.json.set('purchase:' + currentYear + ':' + uuid.v4(), '$', {
+            let timestamp = new Date().toLocaleString();
+            let pendingOrders = await this.getPendingOrders();
+            let order = {
                 user: recipient_phone,
                 total: total,
+                time: timestamp,
                 purchased: cart
-            });
+            };
+            pendingOrders.push(order);
+            await redis_cli.json.set('pending_orders', '$.orders', pendingOrders);
+            return pendingOrders.length - 1;
+        }
+        catch (e) {
+            log.error(e);
+        }
+    }
 
+    async savePurchase(order, order_id){
+        try {
+            this._connect();
+            const currentYear = new Date().getFullYear();
+            let orders = await redis_cli.json.get('pending_orders', '$');
+            await redis_cli.json.set('purchase:' + currentYear + ':' + uuid.v4(), '$', order);
+            orders.orders.splice(order_id, 1);
+            await redis_cli.json.set('pending_orders', '$', orders);
+        }
+        catch (e) {
+            log.error(e);
+        }
+    }
+
+    async getPendingOrders(){
+        try {
+            this._connect();
+            let pending = await redis_cli.json.get('pending_orders', '$');
+            return pending.orders;
         }
         catch (e) {
             log.error(e);

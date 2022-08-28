@@ -36,8 +36,10 @@ Data is stored as JSON objects with the RedisJSON module.
   * Set user's cart info: `JSON.SET user:{user-phone-number} $.cart  {user-cart-info-objec}`
   * Empty cart: `JSON.SET user:{user-phone-number} $.cart  "[]"`
 * Purchase information:
-  * Set user info: `JSON.SET purchase:{user-phone-number} $  {purchase-info-objec}`
-
+  * Set user info: `JSON.SET purchase:{year}_{uuid.v4} $  {purchase-info-objec}`
+* Pending orders information:
+  * Get pending orders info: `JSON.GET pending_orders $`
+  * Set pending orders info: `JSON.SET pending_orders $  {pending-orders-info-objec}`
 
 ## How to run it locally?
 
@@ -108,7 +110,7 @@ Now, for the Whatsapp Business part, you need a valid Meta developer account. If
 * select **WhatsApp** and click **Set up** button.
 * Then you will be shown the page "first steps" for the whatsapp product
 
-![Meta: whatsapp irst steps](readme_img/meta_whatsapp_first_steps.png)
+![Meta: whatsapp first steps](readme_img/meta_whatsapp_first_steps.png)
 
 * Add a new **Test phone number** and annotate both the phone number and its ID
 * Annotate also the **WhatsApp Business Account ID** and the temp. **Access Token**
@@ -118,7 +120,10 @@ Now, for the Whatsapp Business part, you need a valid Meta developer account. If
   * WA_SENDER_PHONENUMBER_ID
   * WA_BUSINESS_APP_ID
 
-* Then, you need to add also a phone number where whatsapp is active (yousually your own number) that you will use as a test. You can add up to 5 numbers for each Whatsapp App, and you will need to verify ownership of each of them.
+* Then, you need to add also a phone number where whatsapp is active (yousually your own number) that you will use as a test that will act as the buyer. Plus, if you own it, another phone number that will be act as the seller. If you have just one phone number available, don't worry, you will be able to thest this app anyway.
+* You can add up to 5 numbers for each Whatsapp App, if you want to, and you will need to verify ownership of each of them.
+
+* You need to save in the *env.js* also the phone number that will act as the seller, in the `SELLER_PHONE` variable. If you have just one number available, save that one.
 
 The last thing you need to fill in for *env.js* is `WA_VERIFY_TOKEN`: you can generate this as you wish, or write a secret string, such as `'verifyThisToken'`. You will need this later on.
 
@@ -139,7 +144,9 @@ node setup.js
 npm start
 ```
 
-* In a separate shell you will need to run the appou need to run *ngrok* as well:
+> **Note**: If you have just one phone number to test the app, that will act as both buyer and seller, you need to start the app with the `ONE_PHONE` flag on, that is: `ONE_PHONE=ON npm start`
+
+* In a separate shell you will need to run *ngrok* as well:
 
 ```sh
 ngrok http  --region us 9000
@@ -196,9 +203,18 @@ Your app is ready to work!
 
 ![App: Add to Cart](readme_img/app_checkout.png)
 
-* After checking out, the app saves the purchased prder to the database, and presents some options to either again talk to a human or browse more products to shop.
+* After checking out, the app notifies the seller of a new incoming order, and presents to the buyer some options to either again talk to a human or browse more products to shop.
 
 We have accomplished our purchase!
+
+* On the seller side, the seller number gets notified of the incoming order with all the info needed to prepare the order. The seller has the possibility  to send the seller a notification of when the order will be reay, or fulfill the order right away. Finally the seller can review also all pending orders.
+
+![App: Seller side](readme_img/seller_side.png)
+
+![App: Seller side again](readme_img/seller_side2.png)
+
+* At any time the seller can ping their app to check how many ending order are present and view each of them (this is not available when the app is started with just one phone).
+* Finally, when the order is fullfilled, the app saves the purchased order to the database as a purchase order. This could be used for statistics.
 
 ## Deployment
 

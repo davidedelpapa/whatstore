@@ -16,7 +16,7 @@ const development = {
     REDIS_PORT: '',
     REDIS_USER: '',
     REDIS_PASSWORD: '',
-    REDIS_SECRET: ''
+    SELLER_PHONE: ''
 };
 
 const fallback = {
